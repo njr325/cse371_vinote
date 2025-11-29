@@ -1,0 +1,17 @@
+// android/build.gradle (RACINE du projet Android)
+
+buildscript {
+    ext.kotlin_version = '1.8.21' // (ou votre version actuelle)
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:7.3.0' // (ou votre version actuelle)
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        
+        // AJOUT CRUCIAL : Plugin Google Services (pour Android)
+        classpath 'com.google.gms:google-services:4.4.0' 
+    }
+}
+// ...
