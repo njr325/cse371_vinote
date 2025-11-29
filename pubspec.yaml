@@ -1,0 +1,45 @@
+name: vinote
+description: A Smart Wine Tasting App
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  cupertino_icons: ^1.0.6
+  
+  # Pour la reconnaissance d'étiquette
+  camera: ^0.10.5+9 
+  image_picker: ^1.0.4 
+  
+  # Pour la géolocalisation et la carte
+  geolocator: ^10.1.0 
+  geocoding: ^2.1.1 # AJOUTÉ pour le service de localisation
+  google_maps_flutter: ^2.5.0 
+  
+  # Pour la base de données locale
+  sqflite: ^2.3.0 
+  path_provider: ^2.1.1 
+  
+  # Pour les appels API (si non déjà inclus)
+  http: ^1.1.0 # AJOUTÉ pour le service d'accords mets & vins
+
+  firebase_core: ^2.24.2 # Nécessaire pour initialiser Firebase
+  firebase_auth: ^4.15.2 # Pour l'authentification (e-mail/mot de passe, Google, etc.)
+  cloud_firestore: ^4.13.6 # Pour stocker le Journal de Dégustation en ligne
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  
+  
+flutter: 
+  uses-material-design: true
+  
+  assets:
+    - .env
+    - assets/data/pairing_rules.json
+    - assets/data/local_cuisine_data.json

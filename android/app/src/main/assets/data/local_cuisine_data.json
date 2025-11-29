@@ -1,0 +1,21 @@
+{
+  "FR": {
+    "local_dishes": ["Escargots de Bourgogne", "Confit de Canard", "Blanquette de Veau", "Fromages affinés"],
+    "regions": {
+      "Bordeaux": ["Agneau de Pauillac", "Entrecôte bordelaise"],
+      "Bourgogne": ["Bœuf Bourguignon", "Pochouse"]
+    }
+  },
+  "US": {
+    "local_dishes": ["Barbecue (Pulled Pork)", "Cheeseburger Gourmand", "Poutine (simulé)"],
+    "regions": {
+      "CA": ["Cioppino (San Francisco)", "Tacos de poisson"]
+    }
+  },
+  "IT": {
+    "local_dishes": ["Pasta Carbonara", "Risotto aux Cèpes", "Pizza Classique"],
+    "regions": {
+      "Tuscany": ["Bistecca alla Fiorentina"]
+    }
+  }
+}

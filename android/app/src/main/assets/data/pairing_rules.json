@@ -1,0 +1,24 @@
+{
+  "profiles": {
+    "Red_Light": {
+      "name": "Rouge Léger",
+      "dishes": ["Volaille", "Charcuterie", "Champignons", "Pâtes légères"]
+    },
+    "Red_Bold": {
+      "name": "Rouge Corsé",
+      "dishes": ["Bœuf", "Agneau", "Cuisine Fumée", "Plats en sauce"]
+    },
+    "White_Dry": {
+      "name": "Blanc Sec",
+      "dishes": ["Fruits de Mer", "Poissons Blancs", "Chèvre Frais", "Sushi"]
+    },
+    "White_Sweet": {
+      "name": "Blanc Moelleux",
+      "dishes": ["Desserts aux Fruits", "Foie Gras", "Cuisine Asiatique Épicée"]
+    },
+    "Sparkling": {
+      "name": "Effervescent",
+      "dishes": ["Apéritifs", "Huîtres", "Fritures", "Cuisine Salée"]
+    }
+  }
+}

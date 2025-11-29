@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSCameraUsageDescription</key>
+    <string>Vinote a besoin de la caméra pour scanner les étiquettes de vin et les identifier par IA.</string>
+
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Vinote a besoin de votre localisation pour vérifier l'âge légal dans votre pays et vous montrer les vignobles et bars à vin proches sur la carte.</string>
+    
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Vinote a besoin d'accéder à votre galerie pour choisir des photos de vin existantes.</string>
+	
+	</dict>
+</plist>

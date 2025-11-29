@@ -1,0 +1,87 @@
+// Début de android/app/build.gradle
+
+// Configuration pour lire le fichier local.properties (standard Flutter)
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader ->
+        localProperties.load(reader)
+    }
+}
+
+// ======================================================
+// LOGIQUE DE CHARGEMENT DU FICHIER .ENV POUR LES CLÉS API
+// ======================================================
+def flutterDotEnv = rootProject.file(".env") // Lit le fichier .env à la racine du projet
+def envProperties = new Properties()
+if (flutterDotEnv.exists()) {
+    flutterDotEnv.withReader('UTF-8') { reader ->
+        envProperties.load(reader)
+    }
+}
+// ======================================================
+
+def flutterRoot = localProperties.getProperty('flutter.sdk')
+if (flutterRoot == null) {
+    throw new GradleException("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
+}
+
+// Vérifie si le fichier de configuration global pour Flutter est présent
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
+
+android {
+    namespace "com.vinote.app" // Assurez-vous que ceci correspond à votre package
+    compileSdkVersion flutter.compileSdkVersion
+    ndkVersion flutter.ndkVersion
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+
+    defaultConfig {
+        // TODO: Spécifiez votre applicationId ici. Le même que dans MainActivity.kt
+        applicationId "com.vinote.app" 
+        minSdkVersion flutter.minSdkVersion
+        targetSdkVersion flutter.targetSdkVersion
+        versionCode localProperties.getProperty('flutter.versionCode').toInteger()
+        versionName localProperties.getProperty('flutter.versionName')
+        
+        // 1. INJECTION DE LA CLÉ MAPS DANS ANDROIDMANIFEST.XML
+        // La clé sera accessible via R.string.google_maps_key
+        resValue "string", "google_maps_key", envProperties.getProperty("GOOGLE_MAPS_API_KEY", "")
+    }
+
+    // Configuration pour TFLite : Empêche la compression des fichiers de modèle
+    aaptOptions {
+        noCompress 'tflite'
+    }
+}
+
+flutter {
+    source '../..'
+}
+
+dependencies {
+    // Dépendance Kotlin standard
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    
+    // ======================================================
+    // DÉPENDANCES POUR LA RECONNAISSANCE D'ÉTIQUETTE (TFLITE)
+    // ======================================================
+    // TFLite pour la vision (détection d'objets, classification)
+    implementation 'org.tensorflow:tensorflow-lite-task-vision:0.4.0'
+    // Support GPU (optionnel, mais améliore les performances)
+    implementation 'org.tensorflow:tensorflow-lite-gpu:2.11.0'
+    // ======================================================
+}
