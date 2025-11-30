@@ -36,9 +36,10 @@ class _MapScreenState extends State<MapScreen> {
       });
 
       // Animer la caméra de FlutterMap sur la nouvelle position
-      _mapController.animateCamera(
-        CameraUpdate.newLatLng(newPosition),
-      );
+      _mapController.move(
+              newPosition, // Le LatLng cible
+              _mapController.camera.zoom, // Conserver le niveau de zoom actuel
+          );
       
     } catch (e) {
       setState(() {

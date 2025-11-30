@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/tasting_entry.dart';
 import '../services/database_service.dart';
+import 'add_entry_screen.dart';
 
 class JournalScreen extends StatefulWidget {
   const JournalScreen({super.key});
