@@ -6,7 +6,6 @@ import 'map_screen.dart';
 import 'pairing_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  // La caméra est passée depuis main.dart
   final CameraDescription? camera;
 
   const HomeScreen({super.key, this.camera});
@@ -18,13 +17,11 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
-  // Initialisation des écrans
   late final List<Widget> _screens;
 
   @override
   void initState() {
     super.initState();
-    // Les écrans sont construits ici, le Scanner a besoin de l'objet CameraDescription
     _screens = <Widget>[
       const JournalScreen(),
       ScannerScreen(camera: widget.camera),
@@ -43,7 +40,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // Le titre change selon l'écran sélectionné
         title: Text(['Journal', 'Scanner', 'Carte', 'Accords'][_selectedIndex]),
         backgroundColor: Colors.purple,
       ),
@@ -73,7 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
         selectedItemColor: Colors.purple,
         unselectedItemColor: Colors.grey,
         onTap: _onItemTapped,
-        type: BottomNavigationBarType.fixed, // Empêche l'animation de décalage
+        type: BottomNavigationBarType.fixed,
       ),
     );
   }

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import '../services/database_service.dart';
-import '../models/wine.dart';
 import '../models/tasting_entry.dart';
-import 'add_entry_screen.dart'; // Import du nouvel écran de saisie
+import '../services/database_service.dart';
 
 class JournalScreen extends StatefulWidget {
   const JournalScreen({super.key});
@@ -13,89 +11,100 @@ class JournalScreen extends StatefulWidget {
 
 class _JournalScreenState extends State<JournalScreen> {
   final DatabaseService _dbService = DatabaseService();
-  Future<List<Map<String, dynamic>>>? _journalFuture;
+  late Future<List<TastingEntry>> _entriesFuture;
 
   @override
   void initState() {
     super.initState();
-    _refreshJournal();
+    // Charge les entrées au démarrage de l'écran
+    _entriesFuture = _dbService.getEntries();
   }
 
-  // Fonction pour recharger les données du journal
+  // Force le rechargement de la liste (utilisé après l'ajout ou la suppression)
   void _refreshJournal() {
     setState(() {
-      _journalFuture = _dbService.getJournalEntries();
+      _entriesFuture = _dbService.getEntries();
     });
   }
 
-  // Fonction pour naviguer vers l'écran d'ajout réel
-  void _navigateToAddEntry() async {
-    // Naviguer vers l'écran de formulaire et attendre le résultat
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        // Navigation vers l'écran de saisie (sans vin pré-rempli pour une saisie manuelle)
-        builder: (context) => const AddEntryScreen(), 
-      ),
+  void _deleteEntry(int id) async {
+    await _dbService.deleteEntry(id);
+    _refreshJournal(); // Recharger la liste après suppression
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Entrée supprimée du journal.')),
     );
-
-    // Si le résultat est 'true', cela signifie qu'une nouvelle entrée a été enregistrée.
-    if (result == true) { 
-      _refreshJournal(); // Recharger le journal pour afficher la nouvelle entrée
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Mon Journal de Dégustation")),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: _journalFuture,
+      body: FutureBuilder<List<TastingEntry>>(
+        future: _entriesFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
-          }
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Erreur: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Center(
               child: Text(
-                'Votre journal est vide. Ajoutez votre première dégustation !',
+                'Votre journal est vide. Scannez une étiquette pour commencer!',
                 textAlign: TextAlign.center,
               ),
             );
+          } else {
+            // Affichage de la liste des entrées
+            return ListView.builder(
+              padding: const EdgeInsets.all(8.0),
+              itemCount: snapshot.data!.length,
+              itemBuilder: (context, index) {
+                final entry = snapshot.data![index];
+                return Dismissible(
+                  key: Key(entry.id.toString()),
+                  direction: DismissDirection.endToStart,
+                  onDismissed: (direction) {
+                    _deleteEntry(entry.id!);
+                  },
+                  background: Container(
+                    color: Colors.red,
+                    alignment: Alignment.centerRight,
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: const Icon(Icons.delete, color: Colors.white),
+                  ),
+                  child: Card(
+                    elevation: 2,
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: Colors.purple.shade100,
+                        child: Text(entry.rating.toStringAsFixed(1)),
+                      ),
+                      title: Text(entry.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle: Text('${entry.region} - ${entry.vintage}\n${entry.notes}'),
+                      isThreeLine: true,
+                      onTap: () {
+                        // Ici, vous pourriez naviguer vers un écran de détail
+                      },
+                    ),
+                  ),
+                );
+              },
+            );
           }
-          
-          final entries = snapshot.data!;
-          
-          return ListView.builder(
-            itemCount: entries.length,
-            itemBuilder: (context, index) {
-              final entry = entries[index];
-              
-              return Card(
-                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                child: ListTile(
-                  leading: const Icon(Icons.wine_bar, color: Colors.purple),
-                  title: Text('${entry['labelName']} (${entry['vintage']})'),
-                  subtitle: Text(
-                    'Note: ${entry['rating']} / 5.0 | Région: ${entry['region']}\n'
-                    'Notes: ${entry['personalNotes']}',
-                  ),
-                  isThreeLine: true,
-                  trailing: Text(
-                    // Formatage de la date
-                    DateTime.parse(entry['date'].toString()).toLocal().toString().split(' ')[0],
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
-                ),
-              );
-            },
-          );
         },
       ),
+      // Bouton flottant pour ajouter manuellement (optionnel)
       floatingActionButton: FloatingActionButton(
-        onPressed: _navigateToAddEntry,
-        tooltip: 'Ajouter une dégustation',
-        child: const Icon(Icons.add),
+        onPressed: () async {
+          // Naviguer vers l'écran d'ajout et rafraîchir en retour
+          await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AddEntryScreen()),
+          );
+          _refreshJournal();
+        },
+        backgroundColor: Colors.purple,
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import '../services/location_service.dart'; // Pour obtenir la position initiale
-import '../services/winery_api_service.dart';
-import '../models/winery.dart';
+import 'package:flutter_map/flutter_map.dart'; // Le nouveau package de carte
+import 'package:latlong2/latlong.dart'; // Pour les coordonnées LatLng
+import 'package:geolocator/geolocator.dart';
+import '../services/location_service.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -12,87 +12,106 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
+  // Position initiale par défaut (ex: Paris)
+  static const LatLng _defaultLocation = LatLng(48.8566, 2.3522);
+  final MapController _mapController = MapController();
+  LatLng _currentPosition = _defaultLocation;
   final LocationService _locationService = LocationService();
-  final WineryApiService _apiService = WineryApiService();
-  
-  // Ensemble pour stocker les marqueurs de la carte
-  Set<Marker> _markers = {};
-  
-  // Position initiale de la caméra
-  static const CameraPosition _initialCameraPosition = CameraPosition(
-    target: LatLng(48.8566, 2.3522), // Paris (position par défaut)
-    zoom: 12.0,
-  );
+  String _loadingMessage = 'Chargement de la carte OpenStreetMap et de votre position...';
 
   @override
   void initState() {
     super.initState();
-    _loadUserLocationAndWineries();
+    _loadUserLocation();
   }
 
-  // Charge la position de l'utilisateur et les lieux proches
-  void _loadUserLocationAndWineries() async {
-    // Récupérer la position utilisateur
-    final userPosition = await _locationService.getCurrentPosition();
-    
-    // Si la position est disponible
-    if (userPosition != null) {
-      final userLatLng = LatLng(userPosition.latitude, userPosition.longitude);
+  void _loadUserLocation() async {
+    try {
+      final position = await _locationService.getCurrentLocation();
+      final newPosition = LatLng(position.latitude, position.longitude);
       
-      // Mettre à jour la caméra sur la position de l'utilisateur
-      _mapController?.animateCamera(
-        CameraUpdate.newCameraPosition(
-          CameraPosition(target: userLatLng, zoom: 14.0)
-        ),
+      setState(() {
+        _currentPosition = newPosition;
+        _loadingMessage = '';
+      });
+
+      // Animer la caméra de FlutterMap sur la nouvelle position
+      _mapController.animateCamera(
+        CameraUpdate.newLatLng(newPosition),
       );
       
-      // Afficher le marqueur de l'utilisateur
-      _markers.add(Marker(
-        markerId: const MarkerId('user_location'),
-        position: userLatLng,
-        infoWindow: const InfoWindow(title: 'Ma Position'),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-      ));
-
-      // Récupérer les vignobles et bars à vin
-      final wineries = await _apiService.fetchNearbyWineries(userLatLng);
-      _addWineryMarkers(wineries);
+    } catch (e) {
+      setState(() {
+        _loadingMessage = 'Erreur de localisation: ${e.toString()}';
+      });
+      print('Erreur lors du chargement de la position: $e');
     }
-  }
-
-  // Ajoute les marqueurs des vignobles à la carte
-  void _addWineryMarkers(List<Winery> wineries) {
-    final Set<Marker> wineryMarkers = wineries.map((winery) {
-      return Marker(
-        markerId: MarkerId(winery.id),
-        position: winery.coordinates,
-        infoWindow: InfoWindow(
-          title: winery.name,
-          snippet: '${winery.address} - Note: ${winery.rating}',
-        ),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueViolet), // Couleur Vin
-      );
-    }).toSet();
-    
-    setState(() {
-      _markers.addAll(wineryMarkers);
-    });
-  }
-  
-  GoogleMapController? _mapController;
-  void _onMapCreated(GoogleMapController controller) {
-    _mapController = controller;
   }
 
   @override
   Widget build(BuildContext context) {
-    return GoogleMap(
-      onMapCreated: _onMapCreated,
-      initialCameraPosition: _initialCameraPosition,
-      markers: _markers, // Afficher tous les marqueurs
-      myLocationEnabled: true, // Afficher le point bleu de l'utilisateur
-      myLocationButtonEnabled: true,
-      zoomControlsEnabled: false,
+    if (_loadingMessage.isNotEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(height: 10),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(_loadingMessage, textAlign: TextAlign.center),
+            ),
+          ],
+        ),
+      );
+    }
+    
+    // Le widget FlutterMap remplace GoogleMap
+    return FlutterMap(
+      mapController: _mapController,
+      options: MapOptions(
+        initialCenter: _currentPosition,
+        initialZoom: 14.0, // Zoom initial
+      ),
+      children: [
+        // 1. La couche de tuiles (le fond de carte OSM)
+        TileLayer(
+          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+          userAgentPackageName: 'com.vinote.app', // Obligatoire pour les API OSM
+        ),
+
+        // 2. Les Marqueurs (y compris l'utilisateur)
+        MarkerLayer(
+          markers: [
+            // Marqueur pour la position de l'utilisateur
+            Marker(
+              point: _currentPosition,
+              width: 80,
+              height: 80,
+              child: const Icon(
+                Icons.location_pin,
+                color: Colors.blue,
+                size: 40.0,
+              ),
+            ),
+            // AJOUTER D'AUTRES MARQUEURS ICI (Vignobles, etc.)
+          ],
+        ),
+
+        // 3. Bouton pour recentrer sur la position de l'utilisateur (Optionnel)
+        Align(
+          alignment: Alignment.bottomRight,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: FloatingActionButton(
+              heroTag: 'recenterMap',
+              backgroundColor: Colors.purple,
+              onPressed: _loadUserLocation,
+              child: const Icon(Icons.my_location, color: Colors.white),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

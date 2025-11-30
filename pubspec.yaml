@@ -15,9 +15,10 @@ dependencies:
   image_picker: ^1.0.4 
   
   # Pour la géolocalisation et la carte
-  geolocator: ^10.1.0 
+  geolocator: ^11.0.0
   geocoding: ^2.1.1 # AJOUTÉ pour le service de localisation
-  google_maps_flutter: ^2.5.0 
+  flutter_map: ^6.1.0
+  latlong2: ^0.9.1
   
   # Pour la base de données locale
   sqflite: ^2.3.0 
@@ -43,3 +44,4 @@ flutter:
     - .env
     - assets/data/pairing_rules.json
     - assets/data/local_cuisine_data.json
+    - assets/data/wine_pairing.json

@@ -1,43 +1,45 @@
 class TastingEntry {
-  final int? id;
-  final int wineId; // Clé étrangère vers la table Wine
-  final DateTime date;
-  final String aroma; // Notes d'arôme de l'utilisateur
-  final String flavor; // Notes de saveur de l'utilisateur
-  final double rating; // Note personnelle (ex: de 1.0 à 5.0)
-  final String personalNotes; 
+  final int? id; // ID de la base de données (peut être null lors de l'insertion)
+  final String name;
+  final String region;
+  final int vintage;
+  final double rating;
+  final String notes;
+  final String date; // Format ISO 8601 pour un stockage facile
 
   TastingEntry({
     this.id,
-    required this.wineId,
-    required this.date,
-    required this.aroma,
-    required this.flavor,
+    required this.name,
+    required this.region,
+    required this.vintage,
     required this.rating,
-    required this.personalNotes,
+    required this.notes,
+    required this.date,
   });
 
+  // Convertit un objet TastingEntry en Map (pour l'insertion dans SQLite)
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'wineId': wineId,
-      'date': date.toIso8601String(), // Stocker comme string
-      'aroma': aroma,
-      'flavor': flavor,
+      'name': name,
+      'region': region,
+      'vintage': vintage,
       'rating': rating,
-      'personalNotes': personalNotes,
+      'notes': notes,
+      'date': date,
     };
   }
 
+  // Crée un objet TastingEntry à partir d'une Map (récupéré de SQLite)
   factory TastingEntry.fromMap(Map<String, dynamic> map) {
     return TastingEntry(
       id: map['id'] as int?,
-      wineId: map['wineId'] as int,
-      date: DateTime.parse(map['date'] as String),
-      aroma: map['aroma'] as String,
-      flavor: map['flavor'] as String,
+      name: map['name'] as String,
+      region: map['region'] as String,
+      vintage: map['vintage'] as int,
       rating: map['rating'] as double,
-      personalNotes: map['personalNotes'] as String,
+      notes: map['notes'] as String,
+      date: map['date'] as String,
     );
   }
 }

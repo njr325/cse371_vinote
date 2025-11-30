@@ -1,62 +1,78 @@
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart';
-import 'home_screen.dart'; // Importez votre écran d'accueil
+import '../services/location_service.dart'; // Nécessite le service de géolocalisation
+import 'package:geolocator/geolocator.dart'; // Nécessite d'importer geolocator
 
+// Interface de l'écran (doit accepter un callback en cas de succès)
 class AgeGateScreen extends StatefulWidget {
-  const AgeGateScreen({super.key});
+  final VoidCallback onVerificationSuccess;
+
+  const AgeGateScreen({super.key, required this.onVerificationSuccess});
 
   @override
   State<AgeGateScreen> createState() => _AgeGateScreenState();
 }
 
 class _AgeGateScreenState extends State<AgeGateScreen> {
-  final AuthService _authService = AuthService();
+  final LocationService _locationService = LocationService();
   DateTime? _selectedDate;
-  String _message = 'Veuillez entrer votre date de naissance pour vérifier l\'âge légal.';
+  String _message = 'Veuillez entrer votre date de naissance.';
+  bool _isLoading = false;
 
-  // Affiche un sélecteur de date (date picker)
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: DateTime(DateTime.now().year - 21), // Initialiser à 21 ans en arrière
+      initialDate: DateTime.now().subtract(const Duration(days: 365 * 21)),
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
     );
-    if (picked != null && picked != _selectedDate) {
+    if (picked != null) {
       setState(() {
         _selectedDate = picked;
-        _message = 'Date sélectionnée: ${_selectedDate!.toLocal().toString().split(' ')[0]}';
       });
     }
   }
 
-  // Lance la vérification de l'âge
-  void _submitAge(BuildContext context) async {
+  void _verifyAge() async {
     if (_selectedDate == null) {
       setState(() {
-        _message = 'Veuillez sélectionner une date de naissance.';
+        _message = "Veuillez choisir une date de naissance.";
       });
       return;
     }
 
-    // Montrer un indicateur de chargement pendant la vérification de la géolocalisation
     setState(() {
-      _message = 'Vérification de la conformité légale en cours...';
+      _isLoading = true;
+      _message = 'Vérification de la localisation et de l\'âge légal...';
     });
 
-    final int requiredAge = await _authService.verifyLegalAge(_selectedDate!);
+    try {
+      // 1. Obtenir la localisation actuelle
+      final Position position = await _locationService.getCurrentLocation();
+      // 2. Récupérer le pays et l'âge légal (logique simplifiée)
+      // NOTE: La logique réelle de service est dans LocationService.dart
+      final int legalAge = await _locationService.getLegalDrinkingAge(
+          position.latitude, position.longitude);
 
-    if (requiredAge > 0) {
-      // Succès: L'utilisateur est conforme.
-      // Naviguer vers l'écran principal (Home)
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
-      );
-    } else {
-      // Échec: L'utilisateur n'a pas l'âge légal.
+      // 3. Calculer l'âge de l'utilisateur
+      final now = DateTime.now();
+      final userAge = now.year - _selectedDate!.year;
+      final bool isLegal = userAge >= legalAge;
+
+      if (isLegal) {
+        widget.onVerificationSuccess(); // Succès : passe à l'HomeScreen
+      } else {
+        setState(() {
+          _message = 'Accès refusé. L\'âge légal requis est de $legalAge ans.';
+        });
+      }
+    } catch (e) {
       setState(() {
-        final int userAge = _authService._calculateAge(_selectedDate!);
-        _message = 'Accès refusé. Vous avez $userAge ans. L\'âge légal requis est de 21 ans (par défaut) ou celui de votre région.';
+        _message = 'Erreur: Impossible de vérifier la localisation/l\'âge légal.';
+      });
+      print('Erreur de vérification d\'âge: $e');
+    } finally {
+      setState(() {
+        _isLoading = false;
       });
     }
   }
@@ -64,45 +80,47 @@ class _AgeGateScreenState extends State<AgeGateScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Bienvenue sur Vinote')),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              const Icon(Icons.wine_bar, size: 80, color: Colors.purple),
-              const SizedBox(height: 20),
-              Text(
-                _message,
-                textAlign: TextAlign.center,
-                style: TextStyle(color: requiredAge > 0 ? Colors.green : Colors.red),
+      appBar: AppBar(
+        title: const Text("Vérification d'Âge"),
+        backgroundColor: Colors.purple,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(32.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            Text(
+              _message,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: _isLoading ? Colors.blue : Colors.black),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _isLoading ? null : () => _selectDate(context),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.grey.shade200,
+                foregroundColor: Colors.black,
               ),
-              const SizedBox(height: 30),
-              ElevatedButton(
-                onPressed: () => _selectDate(context),
-                child: const Text('Sélectionner ma Date de Naissance'),
+              child: Text(
+                _selectedDate == null
+                    ? 'Choisir Date de Naissance'
+                    : 'Date choisie: ${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}',
               ),
-              if (_selectedDate != null) ...[
-                const SizedBox(height: 20),
-                Text(
-                  'Date de naissance: ${_selectedDate!.toLocal().toString().split(' ')[0]}',
-                  style: const TextStyle(fontSize: 16),
-                ),
-                const SizedBox(height: 30),
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.verified_user),
-                  label: const Text('Confirmer et Accéder'),
-                  onPressed: () => _submitAge(context),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.redAccent,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                  ),
-                ),
-              ],
-            ],
-          ),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _selectedDate != null && !_isLoading ? _verifyAge : null,
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                backgroundColor: Colors.purple,
+                foregroundColor: Colors.white,
+              ),
+              child: _isLoading
+                  ? const CircularProgressIndicator(color: Colors.white)
+                  : const Text('Confirmer l\'Âge et la Localisation'),
+            ),
+          ],
         ),
       ),
     );

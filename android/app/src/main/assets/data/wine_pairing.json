@@ -1,0 +1,32 @@
+// assets/wine_pairings.json
+
+[
+  {
+    "type": "Vin Rouge Léger",
+    "description": "Exemples : Pinot Noir, Gamay. Fruits rouges et fraîcheur.",
+    "pairings": ["Volaille Rôtie", "Saumon grillé", "Planche de Charcuterie", "Champignons"],
+    "localDishes": ["Bœuf Bourguignon (léger)", "Galette Saucisse", "Quiche Lorraine"],
+    "icon": "🍇"
+  },
+  {
+    "type": "Vin Rouge Puissant",
+    "description": "Exemples : Cabernet Sauvignon, Syrah. Tannins marqués et corps.",
+    "pairings": ["Viande Rouge Grillée", "Gibier", "Plats en Sauce Épicés"],
+    "localDishes": ["Magret de Canard", "Cassoulet", "Gigot d'Agneau"],
+    "icon": "🥩"
+  },
+  {
+    "type": "Vin Blanc Sec et Vif",
+    "description": "Exemples : Sauvignon Blanc, Muscadet. Acidité et minéralité.",
+    "pairings": ["Fruits de Mer", "Huîtres", "Fromage de Chèvre", "Poissons Blancs"],
+    "localDishes": ["Moule Marinière", "Filet de Sole", "Salade Niçoise"],
+    "icon": "🍋"
+  },
+  {
+    "type": "Vin Blanc Riche et Boisé",
+    "description": "Exemples : Chardonnay (élevé en fût), Viognier. Texture et complexité.",
+    "pairings": ["Volaille Crémée", "Homard", "Plats à Base de Champignons"],
+    "localDishes": ["Blanquette de Veau", "Poulet aux Morilles", "Risotto aux Truffes"],
+    "icon": "🧈"
+  }
+]
