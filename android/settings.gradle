@@ -1,0 +1,13 @@
+// android/settings.gradle
+
+// Ceci inclut le sous-projet 'app' dans le build
+include ':app' 
+
+// Si vous utilisez d'autres plugins spécifiques ou des variables d'environnement
+// vous pourriez avoir d'autres lignes ici, mais :app est l'essentiel.
+
+// Définition de l'emplacement du projet (obligatoire)
+def localPropertiesFile = new File(rootDir, "local.properties")
+if (localPropertiesFile.exists()) {
+    includeBuild(localPropertiesFile)
+}
