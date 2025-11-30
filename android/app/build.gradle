@@ -50,13 +50,17 @@ android {
         main.java.srcDirs += 'src/main/kotlin'
     }
 
+    def flutterVersionCode = project.hasProperty('FLUTTER_VERSION_CODE') ? project.property('FLUTTER_VERSION_CODE').toInteger() : 1
+    def flutterVersionName = project.hasProperty('FLUTTER_VERSION_NAME') ? project.property('FLUTTER_VERSION_NAME') : "1.0"
+
     defaultConfig {
         // TODO: Spécifiez votre applicationId ici. Le même que dans MainActivity.kt
         applicationId "com.vinote.app" 
         minSdkVersion flutter.minSdkVersion
         targetSdkVersion flutter.targetSdkVersion
-        versionCode localProperties.getProperty('flutter.versionCode').toInteger()
-        versionName localProperties.getProperty('flutter.versionName')
+        
+        versionCode flutterVersionCode 
+        versionName flutterVersionName
         
         // 1. INJECTION DE LA CLÉ MAPS DANS ANDROIDMANIFEST.XML
         // La clé sera accessible via R.string.google_maps_key
