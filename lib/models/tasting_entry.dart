@@ -17,10 +17,10 @@ class TastingEntry {
     required this.date,
   });
 
-  // Convertit un objet TastingEntry en Map (pour l'insertion dans SQLite)
+  // Convertit un objet TastingEntry en Map (pour l'insertion/mise à jour dans SQLite)
+  // CORRECTION CRITIQUE : Omet l'ID si l'entrée est nouvelle (id == null)
   Map<String, dynamic> toMap() {
-    return {
-      'id': id,
+    final map = {
       'name': name,
       'region': region,
       'vintage': vintage,
@@ -28,6 +28,13 @@ class TastingEntry {
       'notes': notes,
       'date': date,
     };
+    
+    // N'inclut l'ID que s'il est déjà défini (pour la mise à jour, pas l'insertion)
+    if (id != null) {
+      map['id'] = id;
+    }
+    
+    return map;
   }
 
   // Crée un objet TastingEntry à partir d'une Map (récupéré de SQLite)
@@ -36,8 +43,14 @@ class TastingEntry {
       id: map['id'] as int?,
       name: map['name'] as String,
       region: map['region'] as String,
+      
+      // La valeur de 'vintage' doit être convertie en int
       vintage: map['vintage'] as int,
-      rating: map['rating'] as double,
+      
+      // CORRECTION : Utilise 'num' comme type intermédiaire pour convertir les INTEGER ou REAL 
+      // de SQLite en double (le type le plus sûr pour un 'rating').
+      rating: (map['rating'] as num).toDouble(), 
+      
       notes: map['notes'] as String,
       date: map['date'] as String,
     );
