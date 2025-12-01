@@ -5,12 +5,7 @@ pluginManagement {
         google()
         mavenCentral()
         gradlePluginPortal()
-
-        // *** OBLIGATOIRE ***
-        // Répertoire local où Flutter place son plugin Gradle
-        maven {
-            url = uri("${rootDir}/../build/host/outputs/repo")
-        }
+        maven { url 'https://storage.googleapis.com/download.flutter.io' }
     }
 }
 
@@ -18,16 +13,14 @@ plugins {
     id "dev.flutter.flutter-gradle-plugin" version "1.0.0" apply false
 }
 
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
 
-        // *** OBLIGATOIRE ***
-        maven {
-            url = uri("${rootDir}/../build/host/outputs/repo")
-        }
+        maven { url 'https://storage.googleapis.com/download.flutter.io' }
     }
 }
 

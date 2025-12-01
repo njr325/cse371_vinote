@@ -1,47 +1,13 @@
-// android/build.gradle (RACINE du projet Android)
-
-buildscript {
-    ext.kotlin_version = '1.8.21' // tu peux passer à 1.9.10 si besoin
-
-    repositories {
-        google()
-        mavenCentral()
-        jcenter() // utile pour certaines libs anciennes
-    }
-
-    dependencies {
-        classpath 'com.android.tools.build:gradle:7.3.0' // adapte si tu utilises Gradle 8.x
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-
-        // Plugin Google Services (Firebase, etc.)
-        classpath 'com.google.gms:google-services:4.4.0'
-    }
-}
-
+// android/build.gradle
 allprojects {
     repositories {
         google()
         mavenCentral()
-        jcenter()
-
-        // Dépôts supplémentaires pour TensorFlow Lite
-        maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
-        maven { url 'https://jitpack.io' }
-
-        // Dépôt Flutter (à garder en dernier)
         maven { url 'https://storage.googleapis.com/download.flutter.io' }
     }
 }
 
-// Configuration globale Gradle
 rootProject.buildDir = '../build'
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
-}
-subprojects {
-    project.evaluationDependsOn(':app')
-}
-
-task clean(type: Delete) {
-    delete rootProject.buildDir
 }
