@@ -13,6 +13,7 @@ dependencies:
   # Pour la reconnaissance d'étiquette
   camera: ^0.10.5+9 
   image_picker: ^1.0.4 
+  flutter_dotenv: ^5.1.0
   
   # Pour la géolocalisation et la carte
   geolocator: ^11.0.0

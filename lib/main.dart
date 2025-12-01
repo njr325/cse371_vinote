@@ -6,6 +6,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart'; // Pour la gestion des clé
 import 'screens/home_screen.dart'; 
 import 'screens/age_gate_screen.dart'; // L'écran de vérification
 
+
 // Variable globale pour stocker les caméras disponibles (nécessaire pour le Scanner)
 late List<CameraDescription> _cameras;
 

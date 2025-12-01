@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
-import '../models/pairing_profile.dart';
+import 'package:vinote/models/pairing_profile.dart';
 
 class PairingScreen extends StatefulWidget {
   const PairingScreen({super.key});
