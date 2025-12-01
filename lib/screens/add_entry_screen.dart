@@ -46,7 +46,8 @@ class AddEntryScreen extends StatefulWidget {
 
 class _AddEntryScreenState extends State<AddEntryScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _dbService = DatabaseService();
+  // NOTE: On utilise DatabaseService comme s'il gérait les deux tables (Wine et TastingEntry)
+  final _dbService = DatabaseService(); 
 
   // Contrôleurs de formulaire pour les données du vin
   late TextEditingController _nameController;
@@ -67,13 +68,14 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
   @override
   void initState() {
     super.initState();
-    // Initialiser les contrôleurs, en utilisant les données pré-remplies si disponibles
     final wine = widget.prefilledWine;
     
+    // Initialiser les contrôleurs, en utilisant les données pré-remplies si disponibles
     _nameController = TextEditingController(text: wine?.labelName ?? '');
     _grapeController = TextEditingController(text: wine?.grapeVariety ?? '');
     _regionController = TextEditingController(text: wine?.region ?? '');
-    _vintageController = TextEditingController(text: wine?.vintage.toString() ?? '');
+    // Utiliser .toString() car .vintage est un 'int' dans Wine
+    _vintageController = TextEditingController(text: wine?.vintage.toString() ?? ''); 
     
     // Initialiser les notes utilisateur
     _aromaController = TextEditingController();
@@ -81,13 +83,15 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
     _personalNotesController = TextEditingController();
 
     // Si le vin est pré-rempli, nous l'insérons en base immédiatement
+    // NOTE: Ceci est une solution simple, mais non optimale en DB (double insertion si non trouvée)
     if (wine != null) {
       _insertPrefilledWine(wine);
     }
   }
   
-  // Insère le vin scanné pour obtenir son ID avant l'enregistrement de l'entrée
+  // Insère le vin scanné pour obtenir son ID (Wine)
   void _insertPrefilledWine(Wine wine) async {
+    // Si la DB insère Wine, on récupère l'ID généré.
     _currentWineId = await _dbService.insertEntry(wine);
   }
 
@@ -95,34 +99,52 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
   void _saveTastingEntry() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
+      
+      // Conversion sécurisée des nombres avec valeur par défaut
+      final int vintage = int.tryParse(_vintageController.text) ?? 2025;
+      final double rating = _rating; // Déjà géré par RatingStars
 
       // 1. Si le vin n'était pas pré-rempli, insérer un nouvel enregistrement Wine
+      // Ceci garantit que chaque entrée de dégustation est liée à un enregistrement Wine.
       if (_currentWineId == null) {
         final newWine = Wine(
           labelName: _nameController.text,
           grapeVariety: _grapeController.text,
           region: _regionController.text,
-          vintage: int.tryParse(_vintageController.text) ?? 0,
+          vintage: vintage,
           tastingNotesAI: 'Saisie manuelle', // Marquer comme manuel
         );
         _currentWineId = await _dbService.insertEntry(newWine);
       }
       
       if (_currentWineId == null) {
-        // Gérer l'erreur d'insertion du vin
+        // Devrait être géré, mais si l'ID est null, on arrête.
+        ScaffoldMessenger.of(context).showSnackBar(
+           const SnackBar(content: Text('Erreur: Impossible d\'insérer le vin en base.'))
+        );
         return;
       }
 
-      // 2. Créer et insérer l'Entrée de Dégustation
+      // 2. Créer et insérer l'Entrée de Dégustation (TastingEntry)
       final newEntry = TastingEntry(
-        date: _tastingDate,
+        // Informations du Vin (pour l'affichage du journal)
+        name: _nameController.text,
+        region: _regionController.text,
+        vintage: vintage, // Utiliser la variable convertie
+        
+        // Notes de Dégustation
+        rating: rating, // Utiliser la variable du State
         aroma: _aromaController.text,
         flavor: _flavorController.text,
-        rating: _rating,
         personalNotes: _personalNotesController.text,
+        
+        // Date
+        date: _tastingDate.toIso8601String(),
+        // NOTE: On n'ajoute pas l'ID Wine ici, car il n'est pas dans TastingEntry model.
       );
 
-      await _dbService.insertEntry(newEntry);
+      // Le service doit insérer l'Entrée de Dégustation (qui a un modèle différent)
+      await _dbService.insertEntry(newEntry); 
       
       // Afficher un message de succès et fermer l'écran
       ScaffoldMessenger.of(context).showSnackBar(
@@ -182,6 +204,14 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
                     controller: _vintageController,
                     keyboardType: TextInputType.number,
                     decoration: const InputDecoration(labelText: 'Millésime'),
+                    // Valide si c'est un nombre à 4 chiffres (année) ou vide
+                    validator: (value) {
+                       if (value == null || value.isEmpty) return null; // Le millésime peut être vide
+                       if (int.tryParse(value) == null || value.length != 4) {
+                         return 'Entrez une année valide (ex: 2022).';
+                       }
+                       return null;
+                    },
                   ),
                 ),
               ],

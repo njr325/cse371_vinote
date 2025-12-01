@@ -16,15 +16,20 @@ class Wine {
   });
 
   // Convertir un Wine en Map pour l'enregistrement dans la DB
+  // CORRECTION : Omet l'ID si l'objet est nouveau (id == null)
   Map<String, dynamic> toMap() {
-    return {
-      'id': id,
+    final map = {
       'labelName': labelName,
       'grapeVariety': grapeVariety,
       'region': region,
       'vintage': vintage,
       'tastingNotesAI': tastingNotesAI,
     };
+    
+    if (id != null) {
+      map['id'] = id;
+    }
+    return map;
   }
 
   // Créer un Wine à partir d'un Map (lecture de la DB)

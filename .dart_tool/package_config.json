@@ -611,10 +611,10 @@
       "name": "vinote",
       "rootUri": "../",
       "packageUri": "lib/",
-      "languageVersion": "3.0"
+      "languageVersion": "3.2"
     }
   ],
-  "generated": "2025-11-30T03:56:15.565813Z",
+  "generated": "2025-12-01T08:41:28.791896Z",
   "generator": "pub",
   "generatorVersion": "3.4.3",
   "flutterRoot": "file:///C:/dev/flutter",

@@ -2,7 +2,8 @@ name: vinote
 description: A Smart Wine Tasting App
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: '>=3.2.0 <4.0.0'
+  flutter: ">=3.22.0"
 
 dependencies:
   flutter:
