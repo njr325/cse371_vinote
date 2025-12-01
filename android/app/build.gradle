@@ -1,8 +1,4 @@
-plugins {
-    id "com.android.application"
-    id "kotlin-android"
-    id "dev.flutter.flutter-gradle-plugin"
-}
+// android/app/build.gradle
 
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
@@ -12,12 +8,7 @@ if (localPropertiesFile.exists()) {
     }
 }
 
-def flutterRoot = localProperties.getProperty('flutter.sdk')
-if (flutterRoot == null) {
-    throw new GradleException("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
-}
-
-// Chargement du fichier .env
+// Chargement .env
 def flutterDotEnv = rootProject.file(".env")
 def envProperties = new Properties()
 if (flutterDotEnv.exists()) {
@@ -26,8 +17,20 @@ if (flutterDotEnv.exists()) {
     }
 }
 
+def flutterRoot = localProperties.getProperty('flutter.sdk')
+if (flutterRoot == null) {
+    throw new GradleException("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
+}
+
+// ⛔ SUPPRIMER LE BLOC plugins {} → IL NE DOIT PAS ÊTRE ICI
+
+apply plugin: "com.android.application"
+apply plugin: "kotlin-android"
+apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
+
 android {
     namespace "com.vinote.app"
+
     compileSdk flutter.compileSdk
     ndkVersion flutter.ndkVersion
 
@@ -57,17 +60,14 @@ android {
 }
 
 flutter {
-    source "../.."
+    source '../..'
 }
 
 dependencies {
     implementation "com.google.android.material:material:1.11.0"
     implementation "androidx.appcompat:appcompat:1.6.1"
-
-    // Kotlin stdlib
     implementation "org.jetbrains.kotlin:kotlin-stdlib:1.9.22"
 
-    // Tensorflow
     implementation "org.tensorflow:tensorflow-lite-task-vision:0.4.0"
     implementation "org.tensorflow:tensorflow-lite-gpu:2.11.0"
 }
