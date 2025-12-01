@@ -1,4 +1,5 @@
 import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 
 class LocationService {
   
@@ -30,16 +31,26 @@ class LocationService {
     return await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.medium);
   }
+  
+  // Correction de l'erreur : Ajout de la méthode getCurrentCountryCode
+  Future<String?> getCurrentCountryCode() async {
+    try {
+      final position = await getCurrentLocation();
+      // Utilise le géocodage inverse
+      List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
+      
+      if (placemarks.isNotEmpty) {
+        return placemarks.first.isoCountryCode;
+      }
+      return null;
+    } catch (e) {
+      print("Erreur lors de la récupération du code pays: $e");
+      return null;
+    }
+  }
 
-  // Fonction simplifiée pour SIMULER la détermination de l'âge légal
-  // Dans une application réelle, ceci nécessiterait un appel à une API de géocodage inverse
+  // Fonction pour déterminer l'âge légal (inchangée)
   Future<int> getLegalDrinkingAge(double lat, double lon) async {
-    // Logique simplifiée basée sur la latitude (Exemple : si près de l'équateur ou au-dessus)
-    
-    // Pour les besoins de la démonstration, nous simulons la France (20.90° E)
-    // Age légal en France/Europe est généralement 18. Aux US, c'est 21.
-    
-    // Si la longitude est très négative (proche de l'Amérique)
     if (lon < -50.0) {
       return 21; // Simule l'âge légal de 21 ans (Ex: USA)
     } else {

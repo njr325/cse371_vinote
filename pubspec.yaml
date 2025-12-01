@@ -18,7 +18,7 @@ dependencies:
   
   # Pour la géolocalisation et la carte
   geolocator: ^11.0.0
-  geocoding: ^2.1.1 # AJOUTÉ pour le service de localisation
+  geocoding: ^3.0.0
   flutter_map: ^6.1.0
   latlong2: ^0.9.1
   

@@ -1,49 +1,48 @@
 class TastingEntry {
   final int? id; // ID de la base de données (peut être null lors de l'insertion)
-  
-  // Remplacer 'notes' par les champs de l'écran pour la clarté :
-  final String aroma; // Anciennement inclus dans 'notes'
-  final String flavor; // Anciennement inclus dans 'notes'
-  final String personalNotes; // Anciennement inclus dans 'notes'
-  
-  // Garder les informations du vin pour la recherche (nom, région, millésime)
-  // NOTE: Dans une base de données relationnelle, ces champs seraient dans la table Wine.
-  // Pour la simplicité de SQLite non-relationnelle ici, nous les ajoutons.
-  final String name; // Nom du vin (nécessaire pour l'affichage du journal)
+  final int wineId; // Lien vers la table Wine (Clé étrangère logique)
+  final String name;
   final String region;
   final int vintage;
-
   final double rating;
-  final String date; // Format ISO 8601 pour un stockage facile
+  
+  // Champs détaillés pour la dégustation
+  final String aroma; 
+  final String flavor; 
+  final String personalNotes; 
+  
+  final String date; // Format ISO 8601
 
   TastingEntry({
     this.id,
+    required this.wineId,
     required this.name,
     required this.region,
     required this.vintage,
     required this.rating,
-    required this.aroma, // NOUVEAU
-    required this.flavor, // NOUVEAU
-    required this.personalNotes, // NOUVEAU
+    required this.aroma, 
+    required this.flavor, 
+    required this.personalNotes,
     required this.date,
   });
 
   // Convertit un objet TastingEntry en Map (pour l'insertion/mise à jour dans SQLite)
   Map<String, dynamic> toMap() {
     final map = {
+      'wineId': wineId,
       'name': name,
       'region': region,
       'vintage': vintage,
       'rating': rating,
-      'aroma': aroma, // NOUVEAU
-      'flavor': flavor, // NOUVEAU
-      'personalNotes': personalNotes, // NOUVEAU
+      'aroma': aroma,
+      'flavor': flavor,
+      'personalNotes': personalNotes,
       'date': date,
     };
     
-    // Omettre l'ID pour l'insertion
+    // Correction de typage : Assurer que l'ID est bien un int s'il est présent
     if (id != null) {
-      map['id'] = id;
+      map['id'] = id as int;
     }
     
     return map;
@@ -53,13 +52,15 @@ class TastingEntry {
   factory TastingEntry.fromMap(Map<String, dynamic> map) {
     return TastingEntry(
       id: map['id'] as int?,
+      wineId: map['wineId'] as int,
       name: map['name'] as String,
       region: map['region'] as String,
-      vintage: map['vintage'] as int,
-      rating: (map['rating'] as num).toDouble(), 
-      aroma: map['aroma'] as String, // NOUVEAU
-      flavor: map['flavor'] as String, // NOUVEAU
-      personalNotes: map['personalNotes'] as String, // NOUVEAU
+      // Conversions robustes
+      vintage: (map['vintage'] as int?) ?? 0,
+      rating: (map['rating'] as num?)?.toDouble() ?? 0.0, 
+      aroma: map['aroma'] as String,
+      flavor: map['flavor'] as String,
+      personalNotes: map['personalNotes'] as String,
       date: map['date'] as String,
     );
   }
