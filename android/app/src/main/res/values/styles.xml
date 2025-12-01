@@ -1,6 +1,6 @@
 <resources>
     <!-- Launch screen theme -->
-    <style name="LaunchTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="LaunchTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="android:windowBackground">@color/beigeLight</item>
         <item name="android:statusBarColor">@color/bordeauxDark</item>
     </style>

@@ -75,13 +75,12 @@ flutter {
     source '../..'
 }
 
-dependencies {
-    // Dépendance Kotlin standard (corrigée)
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
-    // ======================================================
-    // DÉPENDANCES POUR LA RECONNAISSANCE D'ÉTIQUETTE (TFLITE)
-    // ======================================================
+dependencies {
+    implementation "com.google.android.material:material:1.11.0"
+    implementation "androidx.appcompat:appcompat:1.6.1"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation "org.tensorflow:tensorflow-lite-task-vision:0.4.0"
     implementation "org.tensorflow:tensorflow-lite-gpu:2.11.0"
 }
+
