@@ -92,7 +92,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
   // Insère le vin scanné pour obtenir son ID (Wine)
   void _insertPrefilledWine(Wine wine) async {
     // Si la DB insère Wine, on récupère l'ID généré.
-    _currentWineId = await _dbService.insertEntry(wine);
+    _currentWineId = await _dbService.insertWine(wine);
   }
 
   // Gère la soumission du formulaire
@@ -114,7 +114,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
           vintage: vintage,
           tastingNotesAI: 'Saisie manuelle', // Marquer comme manuel
         );
-        _currentWineId = await _dbService.insertEntry(newWine);
+        _currentWineId = await _dbService.insertWine(newWine);
       }
       
       if (_currentWineId == null) {
@@ -128,6 +128,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
       // 2. Créer et insérer l'Entrée de Dégustation (TastingEntry)
       final newEntry = TastingEntry(
         // Informations du Vin (pour l'affichage du journal)
+        wineId: _currentWineId!,
         name: _nameController.text,
         region: _regionController.text,
         vintage: vintage, // Utiliser la variable convertie
@@ -144,7 +145,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
       );
 
       // Le service doit insérer l'Entrée de Dégustation (qui a un modèle différent)
-      await _dbService.insertEntry(newEntry); 
+      await _dbService.insertTastingEntry(newEntry); 
       
       // Afficher un message de succès et fermer l'écran
       ScaffoldMessenger.of(context).showSnackBar(
