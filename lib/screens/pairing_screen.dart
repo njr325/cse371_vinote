@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'package:flutter/services.dart' show rootBundle;
-import 'package:vinote/models/pairing_profile.dart';
+import '../services/pairing_logic_service.dart';
+import '../models/wine.dart';
 
 class PairingScreen extends StatefulWidget {
   const PairingScreen({super.key});
@@ -11,94 +10,100 @@ class PairingScreen extends StatefulWidget {
 }
 
 class _PairingScreenState extends State<PairingScreen> {
-  late Future<List<PairingProfile>> _pairingsFuture;
+  final PairingLogicService _pairingService = PairingLogicService();
+  Map<String, List<String>> _suggestions = {};
+  bool _isLoading = true;
+
+  // Simuler un vin pour la démo
+  final Wine _testWine = Wine(
+    labelName: 'Un Grand Vin Rouge Corsé',
+    grapeVariety: 'Cabernet Sauvignon',
+    region: 'Napa Valley',
+    vintage: 2019,
+    tastingNotesAI: 'Notes de cerise noire et de chêne.',
+  );
 
   @override
   void initState() {
     super.initState();
-    _pairingsFuture = _loadPairingData();
+    _fetchPairings();
   }
 
-  // Charge le fichier JSON local
-  Future<List<PairingProfile>> _loadPairingData() async {
-    // 1. Charger la chaîne JSON du fichier
-    final String response = await rootBundle.loadString('assets/wine_pairings.json');
-    // 2. Décoder la chaîne en liste d'objets Map
-    final List<dynamic> data = json.decode(response);
-    // 3. Convertir chaque Map en objet PairingProfile
-    return data.map((json) => PairingProfile.fromMap(json)).toList();
+  void _fetchPairings() async {
+    setState(() {
+      _isLoading = true;
+    });
+    
+    final results = await _pairingService.getPairingSuggestions(_testWine);
+    
+    setState(() {
+      _suggestions = results;
+      _isLoading = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Pas besoin d'AppBar car elle est dans HomeScreen
-      body: FutureBuilder<List<PairingProfile>>(
-        future: _pairingsFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(child: Text('Erreur de chargement des accords : ${snapshot.error}'));
-          }
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('Aucun profil d\'accord trouvé.'));
-          }
-
-          final profiles = snapshot.data!;
-          return ListView.builder(
-            padding: const EdgeInsets.all(12.0),
-            itemCount: profiles.length,
-            itemBuilder: (context, index) {
-              final profile = profiles[index];
-              return Card(
-                elevation: 3,
-                margin: const EdgeInsets.only(bottom: 15),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Titre du Profil
-                      Text(
-                        '${profile.icon} ${profile.type}',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.purple.shade700,
-                        ),
-                      ),
-                      const SizedBox(height: 5),
-                      // Description
-                      Text(
-                        profile.description,
-                        style: TextStyle(color: Colors.grey.shade600, fontStyle: FontStyle.italic),
-                      ),
-                      const Divider(height: 20),
-                      
-                      // Accords Classiques
-                      Text(
-                        'Accords Classiques :',
-                        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.purple.shade500),
-                      ),
-                      Text(profile.pairings.join(', ')),
-                      const SizedBox(height: 10),
-
-                      // Suggestions Locales
-                      Text(
-                        'Suggestions Locales 🇫🇷/🇪🇺 :',
-                        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.purple.shade500),
-                      ),
-                      Text(profile.localDishes.join(', ')),
-                    ],
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Accords Suggérés pour : ${_testWine.labelName}',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
                   ),
-                ),
-              );
-            },
-          );
-        },
-      ),
+                  Text(
+                    'Profil de Saveur: ${_suggestions['profile_name']?.first ?? 'Inconnu'}',
+                    style: const TextStyle(fontStyle: FontStyle.italic, color: Colors.purple),
+                  ),
+                  const Divider(height: 30),
+
+                  // 1. Suggestions Locales
+                  _buildSuggestionSection(
+                    context,
+                    title: 'Plats Locaux Recommandés 🌍',
+                    icon: Icons.location_on,
+                    pairings: _suggestions['local']!,
+                  ),
+                  const SizedBox(height: 20),
+
+                  // 2. Suggestions Générales
+                  _buildSuggestionSection(
+                    context,
+                    title: 'Accords Classiques 🍽️',
+                    icon: Icons.restaurant,
+                    pairings: _suggestions['general']!,
+                  ),
+                ],
+              ),
+            ),
+    );
+  }
+  
+  Widget _buildSuggestionSection(BuildContext context, {required String title, required IconData icon, required List<String> pairings}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(icon, color: Colors.redAccent),
+            const SizedBox(width: 8),
+            Text(title, style: Theme.of(context).textTheme.titleLarge),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: pairings.map((dish) => Padding(
+            padding: const EdgeInsets.only(left: 10.0, bottom: 5.0),
+            child: Text('• $dish', style: const TextStyle(fontSize: 16)),
+          )).toList(),
+        ),
+      ],
     );
   }
 }

@@ -60,10 +60,6 @@ class _JournalScreenState extends State<JournalScreen> {
               itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {
                 final entry = snapshot.data![index];
-                final String detailedNotes = 
-                  'Arômes: ${entry.aroma}\n'
-                  'Saveur: ${entry.flavor}\n'
-                  'Notes: ${entry.personalNotes}';
                 return Dismissible(
                   key: Key(entry.id.toString()),
                   direction: DismissDirection.endToStart,
@@ -86,7 +82,10 @@ class _JournalScreenState extends State<JournalScreen> {
                       ),
                       title: Text(entry.name, style: const TextStyle(fontWeight: FontWeight.bold)),
                       subtitle: Text(
-                        '${entry.region} - ${entry.vintage}\n' + detailedNotes,
+                          '${entry.region} - ${entry.vintage}\n' 
+                          'Aromes: ${entry.aroma}\n'
+                          'Saveur: ${entry.flavor}\n'
+                          'Notes pers.: ${entry.personalNotes}',
                       ),
                       isThreeLine: true,
                       onTap: () {
