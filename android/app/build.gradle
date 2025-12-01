@@ -1,4 +1,4 @@
-// Début de android/app/build.gradle
+// android/app/build.gradle
 
 // Configuration pour lire le fichier local.properties (standard Flutter)
 def localProperties = new Properties()
@@ -26,7 +26,7 @@ if (flutterRoot == null) {
     throw new GradleException("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
 }
 
-// Vérifie si le fichier de configuration global pour Flutter est présent
+// Plugins Gradle
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
@@ -54,16 +54,14 @@ android {
     def flutterVersionName = project.hasProperty('FLUTTER_VERSION_NAME') ? project.property('FLUTTER_VERSION_NAME') : "1.0"
 
     defaultConfig {
-        // TODO: Spécifiez votre applicationId ici. Le même que dans MainActivity.kt
-        applicationId "com.vinote.app" 
+        applicationId "com.vinote.app"
         minSdkVersion flutter.minSdkVersion
         targetSdkVersion flutter.targetSdkVersion
-        
-        versionCode flutterVersionCode 
+
+        versionCode flutterVersionCode
         versionName flutterVersionName
-        
-        // 1. INJECTION DE LA CLÉ MAPS DANS ANDROIDMANIFEST.XML
-        // La clé sera accessible via R.string.google_maps_key
+
+        // Injection de la clé Maps dans AndroidManifest.xml
         resValue "string", "google_maps_key", envProperties.getProperty("GOOGLE_MAPS_API_KEY", "")
     }
 
@@ -78,15 +76,12 @@ flutter {
 }
 
 dependencies {
-    // Dépendance Kotlin standard
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    
+    // Dépendance Kotlin standard (corrigée)
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+
     // ======================================================
     // DÉPENDANCES POUR LA RECONNAISSANCE D'ÉTIQUETTE (TFLITE)
     // ======================================================
-    // TFLite pour la vision (détection d'objets, classification)
-    implementation 'org.tensorflow:tensorflow-lite-task-vision:0.4.0'
-    // Support GPU (optionnel, mais améliore les performances)
-    implementation 'org.tensorflow:tensorflow-lite-gpu:2.11.0'
-    // ======================================================
+    implementation "org.tensorflow:tensorflow-lite-task-vision:0.4.0"
+    implementation "org.tensorflow:tensorflow-lite-gpu:2.11.0"
 }
