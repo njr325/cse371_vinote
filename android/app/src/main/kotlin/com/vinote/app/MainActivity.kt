@@ -1,38 +1,35 @@
 package com.vinote.app
 
+import android.os.Bundle
+import android.content.Context
 import androidx.annotation.NonNull
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import android.util.Log
 
-class MainActivity: FlutterActivity() {
+class MainActivity : FlutterActivity() {
     private val CHANNEL = "com.vinote.app/recognition"
 
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler {
-            call, result ->
-            
+
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
             if (call.method == "recognizeLabel") {
-                val imagePath = call.argument<String>("path")
-                
+                val imagePath: String? = call.argument("path")
+
                 if (imagePath != null) {
-                    // --- APPEL DE LA LOGIQUE D'IA RÉELLE ---
-                    
-                    // Assurez-vous que l'exécution se fait en arrière-plan si elle est longue
-                    // (Ici, nous l'appelons directement pour la simplicité, mais utilisez Coroutines dans une vraie app)
                     try {
+                        // Run inference logic (replace with coroutine if long-running)
                         val recognizedData = AIRunner.runInference(applicationContext, imagePath)
-                        result.success(recognizedData) // Retourne les résultats à Dart
+                        result.success(recognizedData)
                     } catch (e: Exception) {
-                        result.error("AI_EXECUTION_ERROR", "Échec de l'exécution du modèle IA.", e.message)
+                        Log.e("AI_ERROR", "Model execution failed", e)
+                        result.error("AI_EXECUTION_ERROR", "Model execution failed.", e.message)
                     }
-
                 } else {
-                    result.error("INVALID_PATH", "Le chemin de l'image est nul.", null)
+                    result.error("INVALID_PATH", "Image path is null.", null)
                 }
-
             } else {
                 result.notImplemented()
             }
