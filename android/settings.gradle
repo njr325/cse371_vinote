@@ -1,11 +1,35 @@
 // android/settings.gradle
 
 pluginManagement {
-    // ... (section standard du plugin management)
-}
-dependencyResolutionManagement {
-    // ... (section standard de dependencyResolutionManagement)
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+
+        // *** OBLIGATOIRE ***
+        // Répertoire local où Flutter place son plugin Gradle
+        maven {
+            url = uri("${rootDir}/../build/host/outputs/repo")
+        }
+    }
 }
 
-rootProject.name = "android" // Nom standard
-include ':app' // C'est la ligne qui dit à Gradle d'inclure votre application
+plugins {
+    id "dev.flutter.flutter-gradle-plugin" version "1.0.0" apply false
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+
+        // *** OBLIGATOIRE ***
+        maven {
+            url = uri("${rootDir}/../build/host/outputs/repo")
+        }
+    }
+}
+
+rootProject.name = "android"
+include(":app")
