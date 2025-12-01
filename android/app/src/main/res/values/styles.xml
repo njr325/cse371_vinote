@@ -1,0 +1,16 @@
+<resources>
+    <!-- Launch screen theme -->
+    <style name="LaunchTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowBackground">@color/beigeLight</item>
+        <item name="android:statusBarColor">@color/bordeauxDark</item>
+    </style>
+
+    <!-- Main application theme -->
+    <style name="NormalTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/bordeaux</item>
+        <item name="colorPrimaryDark">@color/bordeauxDark</item>
+        <item name="colorAccent">@color/beige</item>
+        <item name="android:windowBackground">@color/beigeLight</item>
+        <item name="android:textColor">@color/bordeauxDark</item>
+    </style>
+</resources>
