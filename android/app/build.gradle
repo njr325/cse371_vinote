@@ -4,19 +4,50 @@ plugins {
     id "dev.flutter.flutter-gradle-plugin"
 }
 
-android {
-    namespace "com.example.yourapp"
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader ->
+        localProperties.load(reader)
+    }
+}
 
-    compileSdk flutter.compileSdkVersion
+// Load .env
+def flutterDotEnv = rootProject.file(".env")
+def envProperties = new Properties()
+if (flutterDotEnv.exists()) {
+    flutterDotEnv.withReader('UTF-8') { reader ->
+        envProperties.load(reader)
+    }
+}
+
+android {
+    namespace "com.vinote.app"
+
+    compileSdk = flutter.compileSdkVersion
 
     defaultConfig {
-        minSdk flutter.minSdkVersion
-        targetSdk flutter.targetSdkVersion
+        applicationId "com.vinote.app"
+        minSdk = flutter.minSdkVersion
+        targetSdk = flutter.targetSdkVersion
+
+        versionCode flutter.versionCode
+        versionName flutter.versionName
+
+        resValue "string", "google_maps_key", envProperties.getProperty("GOOGLE_MAPS_API_KEY", "")
     }
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+
+    aaptOptions {
+        noCompress "tflite"
     }
 }
 
