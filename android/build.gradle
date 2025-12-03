@@ -11,6 +11,17 @@ buildscript {
     }
 }
 
+subprojects {
+    afterEvaluate { project ->
+        if (project.name == 'app') {
+            android {
+                // S'assurer que le compileSdkVersion est visible ici
+                compileSdkVersion flutter.compileSdkVersion
+            }
+        }
+    }
+}
+
 allprojects {
     repositories {
         google()
