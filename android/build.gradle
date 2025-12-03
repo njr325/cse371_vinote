@@ -1,4 +1,4 @@
-// Lit le fichier local.properties pour trouver le SDK Flutter
+// Lit le chemin du SDK Flutter depuis local.properties
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
 if (localPropertiesFile.exists()) {
@@ -7,14 +7,14 @@ if (localPropertiesFile.exists()) {
     }
 }
 
-// Définit le chemin du SDK (qui devrait être dans local.properties)
+// Définit le chemin du SDK (utiliser le chemin connu comme valeur de secours si non trouvé)
 def flutterRoot = localProperties.getProperty('flutter.sdk')
 if (flutterRoot == null) {
-    // Si flutter.sdk n'est pas défini, utilisez le chemin absolu connu comme fallback
-    flutterRoot = '/home/studio/development/flutter'
+    flutterRoot = '/home/studio/development/flutter' 
 }
 
-// Expose les propriétés de version au rootProject (méthode fiable)
+// C'est l'instruction qui charge le script de construction de Flutter 
+// et rend les propriétés (versionCode, versionName, etc.) disponibles.
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 buildscript {

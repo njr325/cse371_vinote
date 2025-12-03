@@ -40,11 +40,10 @@ android {
     defaultConfig {
         applicationId "com.vinote.app"
 
-        // CORRECTION DÉFINITIVE : Utilisation des variables globales créées (ext)
-        versionCode rootProject.ext.flutterVersionCode
-        versionName rootProject.ext.flutterVersionName
+        versionCode rootProject.flutter.versionCode.toInteger()
+        versionName rootProject.flutter.versionName.toString()
         
-        // Les lignes minSdk et targetSdk doivent conserver le préfixe 'flutter.'
+        // Ces lignes doivent rester avec le préfixe 'flutter.' pour l'extension :
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         
