@@ -1,19 +1,22 @@
-def flutterRoot = file('/home/studio/development/flutter')
-def flutterBuildScript = new File(flutterRoot, '/packages/flutter_tools/gradle/flutter.gradle')
-
-// Définition des propriétés de version
-// Ces valeurs sont lues depuis votre pubspec.yaml par le plugin Flutter, 
-// puis nous les injectons dans les variables globales (ext) du rootProject
-def flutterProperties = new Properties()
-file(flutterRoot.getParentFile(), '.pubspec').withReader('UTF-8') { reader ->
-    flutterProperties.load(reader)
+// Lit le fichier local.properties pour trouver le SDK Flutter
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader ->
+        localProperties.load(reader)
+    }
 }
 
-rootProject.ext {
-    // Injecter les propriétés du pubspec.yaml pour les rendre accessibles
-    flutterVersionCode = flutterProperties.getProperty('versionCode', '1').toInteger()
-    flutterVersionName = flutterProperties.getProperty('versionName', '1.0.0').toString()
+// Définit le chemin du SDK (qui devrait être dans local.properties)
+def flutterRoot = localProperties.getProperty('flutter.sdk')
+if (flutterRoot == null) {
+    // Si flutter.sdk n'est pas défini, utilisez le chemin absolu connu comme fallback
+    flutterRoot = '/home/studio/development/flutter'
 }
+
+// Expose les propriétés de version au rootProject (méthode fiable)
+apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
+
 buildscript {
     ext.kotlin_version = '1.9.22'
     repositories {
