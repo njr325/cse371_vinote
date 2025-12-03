@@ -1,14 +1,23 @@
 pluginManagement {
+    // 1. Définir flutterSdkPath et l'utiliser pour inclure le buildscript de Flutter (essentiel)
+    def flutterSdkPath = System.env.FLUTTER_ROOT ?: settings.ext.flutterSdkPath 
+    // Si la variable d'environnement FLUTTER_ROOT n'est pas définie, utilisez une autre méthode.
+    // Pour une installation locale, l'inclusion est souvent nécessaire.
+    
+    // Le code ci-dessous est crucial pour les dernières versions de Flutter :
+    includeBuild('$flutterSdkPath/.android/buildscript') 
+    
     repositories {
         google()
         mavenCentral()
         gradlePluginPortal()
-        maven { url "https://storage.googleapis.com/download.flutter.io" }
+        
+        // 2. Le dépôt Google est déjà listé, mais assurez-vous de l'URL du plugin Flutter
+        maven { url "https://storage.googleapis.com/download.flutter.io" } 
     }
 }
-
 plugins {
-    id "dev.flutter.flutter-gradle-plugin" version "1.0.0" apply false
+    id "dev.flutter.flutter-gradle-plugin" version "1.0.0" apply false //
 }
 
-include ":app"
+include ':app'
