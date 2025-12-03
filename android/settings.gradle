@@ -1,12 +1,11 @@
 // File: android/settings.gradle (CORRIGÉ ET MODERNE)
 
 pluginManagement {
-    // Le chemin du SDK est récupéré via local.properties dans le build.gradle racine, 
-    // mais pour le settings.gradle, la méthode de secours est plus fiable :
-    def flutterSdkPath = System.getenv("FLUTTER_ROOT") ?: '/home/studio/development/flutter' 
+    // 1. Définir le chemin du SDK Flutter de manière fiable
+    def flutterSdkPath = System.getenv("FLUTTER_ROOT") ?: '/home/studio/development/flutter'
     settings.ext.flutterSdkPath = flutterSdkPath
 
-    // C'est la ligne CRUCIALE qui remplace "apply from:"
+    // 2. Inclure le buildscript de Flutter pour que Gradle trouve le plugin
     includeBuild("$flutterSdkPath/packages/flutter_tools/gradle")
 
     repositories {
@@ -16,6 +15,7 @@ pluginManagement {
     }
 }
 
+// 3. Déclarer le plugin ici pour qu'il soit disponible.
 plugins {
     id 'dev.flutter.flutter-gradle-plugin' version '1.0.0' apply false
 }
