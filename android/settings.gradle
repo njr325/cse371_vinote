@@ -1,24 +1,27 @@
 // File: android/settings.gradle (CORRIGÉ)
 
 pluginManagement {
-    // 1. Définir le chemin du SDK Flutter de manière fiable
-    def flutterSdkPath = '/home/studio/development/flutter'
-    settings.ext.flutterSdkPath = flutterSdkPath
+    def flutterSdkPath = '/home/studio/development/flutter' // Chemin confirmé
 
-    // 2. Inclure le buildscript de Flutter pour que Gradle trouve le plugin
+    // La ligne suivante est la méthode moderne pour rendre le plugin visible
     includeBuild("$flutterSdkPath/packages/flutter_tools/gradle")
+
+    // Définir le chemin pour l'utiliser dans d'autres parties si nécessaire
+    settings.ext.flutterSdkPath = flutterSdkPath 
 
     repositories {
         gradlePluginPortal()
         google()
         mavenCentral()
+        // Suppression des dépôts inutiles ou obsolètes (comme celui du 'download.flutter.io')
     }
 }
 
-// 3. Déclarer le plugin ici pour qu'il soit disponible. apply false est correct.
+// 1. Déclarer le plugin ici pour qu'il soit disponible. apply false est correct.
 plugins {
     id 'dev.flutter.flutter-gradle-plugin' version '1.0.0' apply false
 }
 
-rootProject.name = "cvinote"
+rootProject.name = "cse371_vinote"
 include ':app'
+// ... (autres 'include' si vous en avez)
