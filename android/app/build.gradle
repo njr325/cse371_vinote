@@ -40,8 +40,8 @@ android {
     defaultConfig {
         applicationId "com.vinote.app"
 
-        versionCode flutter.versionCode.toInteger()
-        versionName flutter.versionName.toString()
+        versionCode 1       
+        versionName "1.0.0"
         
         // Les lignes minSdk et targetSdk doivent conserver le préfixe 'flutter.'
         minSdk = flutter.minSdkVersion
