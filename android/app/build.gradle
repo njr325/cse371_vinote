@@ -39,18 +39,15 @@ android {
 
     defaultConfig {
         applicationId "com.vinote.app"
+
+        // CORRECTION DÉFINITIVE : Utilisation des variables globales créées (ext)
+        versionCode rootProject.ext.flutterVersionCode
+        versionName rootProject.ext.flutterVersionName
         
-        // La variable flutter.minSdkVersion est maintenant disponible grâce au plugin
-        minSdk = flutter.minSdkVersion 
+        // Les lignes minSdk et targetSdk doivent conserver le préfixe 'flutter.'
+        minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
-
-        versionCode flutter.versionCode.toInteger() // Utilisez .toInteger() pour être sûr
-        versionName flutter.versionName
-
-        // S'assurer que le minimum est bien 21 ou 23 pour les applications modernes
-        minSdkVersion 21 // Vous pouvez fixer cette valeur ici si vous voulez être sûr, mais le plugin gère cela.
-
-        resValue "string", "google_maps_key", envProperties.getProperty("GOOGLE_MAPS_API_KEY", "")
+        
     }
 
     compileOptions {
