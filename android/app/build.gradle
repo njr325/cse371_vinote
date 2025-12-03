@@ -1,6 +1,18 @@
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
+// File: android/app/build.gradle
+
+// --- DÉBUT DES CORRECTIONS ---
+
+// 1. Remplacez toutes les lignes 'apply plugin' et 'apply from' par le bloc 'plugins'
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android' // Nouvelle syntaxe pour kotlin-android
+    
+    // Ceci est la clé : utilise le plugin déclaré dans settings.gradle
+    id 'dev.flutter.flutter-gradle-plugin' 
+}
+
+// --- FIN DES CORRECTIONS ---
+
 
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
@@ -22,28 +34,39 @@ if (flutterDotEnv.exists()) {
 android {
     namespace "com.vinote.app"
 
+    // La variable flutter.compileSdkVersion est maintenant disponible grâce au plugin
     compileSdk = flutter.compileSdkVersion
 
     defaultConfig {
         applicationId "com.vinote.app"
-        minSdk = flutter.minSdkVersion
+        
+        // La variable flutter.minSdkVersion est maintenant disponible grâce au plugin
+        minSdk = flutter.minSdkVersion 
         targetSdk = flutter.targetSdkVersion
 
-        versionCode flutter.versionCode
+        versionCode flutter.versionCode.toInteger() // Utilisez .toInteger() pour être sûr
         versionName flutter.versionName
+
+        // S'assurer que le minimum est bien 21 ou 23 pour les applications modernes
+        minSdkVersion 21 // Vous pouvez fixer cette valeur ici si vous voulez être sûr, mais le plugin gère cela.
 
         resValue "string", "google_maps_key", envProperties.getProperty("GOOGLE_MAPS_API_KEY", "")
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        // Pour une compatibilité maximale avec Android Studio et le SDK, Java 1.8 (alias VERSION_1_8)
+        // est souvent le choix par défaut, mais Java 17 est correct si le reste de votre configuration suit.
+        sourceCompatibility JavaVersion.VERSION_1_8 
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 
     kotlinOptions {
-        jvmTarget = "17"
+        jvmTarget = "1.8"
     }
-
+    
+    // ... (ndkVersion est géré par le plugin Flutter)
+    ndkVersion flutter.ndkVersion
+    
     aaptOptions {
         noCompress "tflite"
     }
@@ -54,9 +77,12 @@ flutter {
 }
 
 dependencies {
+    // Les dépendances sont correctes, le plugin Flutter les ajoute automatiquement
     implementation "com.google.android.material:material:1.11.0"
     implementation "androidx.appcompat:appcompat:1.6.1"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.9.22"
+    
+    // Utilisez 'implementation' pour la stdlib Kotlin
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.9.22" 
 
     implementation "org.tensorflow:tensorflow-lite-task-vision:0.4.0"
     implementation "org.tensorflow:tensorflow-lite-gpu:2.11.0"
