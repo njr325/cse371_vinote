@@ -1,16 +1,12 @@
-// File: android/settings.gradle
+// File: android/settings.gradle (CORRIGÉ)
 
 pluginManagement {
-    def flutterDir = System.getenv("FLUTTER_ROOT")
-    if (flutterDir == null) {
-        // Fallback for IDEs not setting FLUTTER_ROOT env var.
-        // Adjust this path if your Flutter SDK is NOT under /home/studio/development/flutter
-        flutterDir = '/home/studio/development/flutter'
-    }
+    // 1. Définir le chemin du SDK Flutter de manière fiable
+    def flutterSdkPath = '/home/studio/development/flutter'
+    settings.ext.flutterSdkPath = flutterSdkPath
 
-    settings.ext.flutterSdkPath = flutterDir
-
-    includeBuild("$flutterDir/packages/flutter_tools/gradle")
+    // 2. Inclure le buildscript de Flutter pour que Gradle trouve le plugin
+    includeBuild("$flutterSdkPath/packages/flutter_tools/gradle")
 
     repositories {
         gradlePluginPortal()
@@ -19,5 +15,10 @@ pluginManagement {
     }
 }
 
+// 3. Déclarer le plugin ici pour qu'il soit disponible. apply false est correct.
+plugins {
+    id 'dev.flutter.flutter-gradle-plugin' version '1.0.0' apply false
+}
+
+rootProject.name = "cvinote"
 include ':app'
-// ... (any other include lines you may have)
